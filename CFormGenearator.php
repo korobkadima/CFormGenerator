@@ -15,24 +15,60 @@
  *
  * @package    	GRID
  * @copyright  	Copyright (c) 2015 through 2010, Dmitriy Korobka
- * @license    	https://github.com/korobkadima/cformgenerator
+ * @license    	https://github.com/korobkadima/CFormGenerator.git
  * @version    	0.1
  * @author     	Dmitriy Korobka <korobka.dima@gmail.com>
  */
 class CFormGeneraor
 {  
     protected $result = '';
+    protected $info   = array();
+    protected $data   = array();
  
-	function __construct
+	function __construct()
 	{
 		log_message('debug', 'CFormGeneraor library initialized.');
 		
 		$this->load->helper('form');
 	}
 	
+	public function set_info($info = array() )
+	{
+		if(!is_array($info))
+		{
+			throw new Exception('Info is not array');
+		}
+		
+		if(count($info) == 0)
+		{
+			throw new Exception('Info array is empty');
+		}
+		
+		$this->info = $info;
+		
+		return $this;
+	}
+	
+	public function set_data($data = array() )
+	{
+		if(!is_array($data))
+		{
+			throw new Exception('Data is not array');
+		}
+		
+		if(count($data) == 0)
+		{
+			throw new Exception('Data array is empty');
+		}
+		
+		$this->data = $data;
+		
+		return $this;
+	}
+	
 	private function submit( $list = array(), $data ='' )
     {
-         return form_submit('action','добавить/обновить'); 
+         return form_submit('action','Submit!'); 
     } 
 
 	private function video( $list = array(), $data ='' )
@@ -47,7 +83,7 @@ class CFormGeneraor
 			{
 				$output['1'] = preg_replace('/&(.*)/si','',$output['1']);
 					 
-				return$ '<iframe width="510" height="400" src="http://www.youtube.com/embed/'.$output['1'].'?fmt=22&wmode=transparent" frameborder="0" allowfullscreen wmode="transparent"></iframe>';
+				return '<iframe width="510" height="400" src="http://www.youtube.com/embed/'.$output['1'].'?fmt=22&wmode=transparent" frameborder="0" allowfullscreen wmode="transparent"></iframe>';
 			}
 		}
 	}
@@ -112,34 +148,29 @@ class CFormGeneraor
 	
 	public function generate_form($list = array(), $data = array())
 	{
-		if(is_array($list))
-		{
-			$this->result .= form_open();
+		$this->result .= form_open();
 			
-			foreach($list as $option)
+			foreach($this->info as $option)
 			{
-				$onedata = isset($data[$option['name']]) ? $data[$option['name']] : 0;
+				$onedata = isset($this->data[$option['name']]) ? $this->data[$option['name']] : 0;
 				
 				switch($list['type'])
 				{
-					 case 'input':    $this->result .= $this->input($option, $onedata); break
-					 case 'textarea': $this->result .= $this->textarea($option, $onedata); break
-					 case 'checkbox': $this->result .= $this->checkbox($option, $onedata); break
-					 case 'select':   $this->result .= $this->select($option, $onedata); break
-					 case 'submit':   $this->result .= $this->submit(); break
-					 
-					 case 'video':    $this->result .= $this->video($option, $onedata); break
+					 case 'input':    $this->result .= $this->input($option, $onedata); break;
+					 case 'hidden':   $this->result .= $this->hidden($option, $onedata); break;
+					 case 'textarea': $this->result .= $this->textarea($option, $onedata); break;
+					 case 'checkbox': $this->result .= $this->checkbox($option, $onedata); break;
+					 case 'select':   $this->result .= $this->select($option, $onedata); break;
+					 case 'video':    $this->result .= $this->video($option, $onedata); break;
 				}
 			}
 			
-			$this->result .= form_close();
+		$this->result .= $this->submit();
+			
+		$this->result .= form_close();
 		
-			return $this->result;
-		}
-		else
-		{
-			return throw new Exception('The list of options must be array');
-		}
+		return $this->result;
+		
 	}
-}	
+}	 
    
